@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disparar E-mails de Boas-vindas</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+    .container { max-width: 680px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e0e0e0; padding: 32px; }
+    h1 { color: #003366; font-size: 22px; text-align: center; margin-bottom: 24px; }
+    .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    input[type="search"] { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .btn-link { background: none; border: none; color: #0057b8; cursor: pointer; font-size: 13px; text-decoration: underline; padding: 0; }
+    .user-list { max-height: 380px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 16px; }
+    .user-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
+    .user-item:last-child { border-bottom: none; }
+    .user-item:hover { background: #f0f6ff; }
+    .user-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #0057b8; }
+    .user-name { font-size: 14px; font-weight: bold; color: #222; }
+    .user-email { font-size: 12px; color: #666; }
+    .counter { font-size: 13px; color: #555; margin-left: auto; }
+    button.btn-primary {
+      width: 100%;
+      background: #0057b8;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button.btn-primary:hover:not(:disabled) { background: #003f8a; }
+    button.btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+    .status { margin-top: 16px; font-size: 15px; text-align: center; }
+    .success { color: #007a3d; }
+    .error { color: #b80000; }
+    .loading { color: #555; }
+    .empty { padding: 24px; text-align: center; color: #999; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Disparar E-mails de Boas-vindas</h1>
+    <div class="toolbar">
+      <input type="search" id="searchInput" placeholder="Buscar por nome ou e-mail..." />
+      <button class="btn-link" id="selectAll">Selecionar todos</button>
+      <button class="btn-link" id="deselectAll">Desmarcar todos</button>
+      <span class="counter" id="counter">0 selecionados</span>
+    </div>
+    <div class="user-list" id="userList"><div class="empty">Carregando usuários...</div></div>
+    <button class="btn-primary" id="dispararBtn" disabled>Disparar e-mails</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:5407';
+    let allUsers = [];
+    let selectedIds = new Set();
+
+    async function loadUsers() {
+      try {
+        const resp = await fetch(API + '/api/usuarios');
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message);
+        allUsers = data.usuarios;
+        renderList(allUsers);
+      } catch (e) {
+        document.getElementById('userList').innerHTML = '<div class="empty error">Erro ao carregar usuários: ' + e.message + '</div>';
+      }
+    }
+
+    function renderList(users) {
+      const list = document.getElementById('userList');
+      if (!users.length) { list.innerHTML = '<div class="empty">Nenhum usuário encontrado.</div>'; return; }
+      list.innerHTML = users.map(u => `
+        <label class="user-item" data-id="${u.id}">
+          <input type="checkbox" value="${u.id}" ${selectedIds.has(String(u.id)) ? 'checked' : ''} />
+          <div>
+            <div class="user-name">${u.name}</div>
+            <div class="user-email">${u.email}</div>
+          </div>
+        </label>
+      `).join('');
+      list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          if (cb.checked) selectedIds.add(cb.value); else selectedIds.delete(cb.value);
+          updateCounter();
+        });
+      });
+    }
+
+    function updateCounter() {
+      document.getElementById('counter').textContent = selectedIds.size + ' selecionado' + (selectedIds.size !== 1 ? 's' : '');
+      document.getElementById('dispararBtn').disabled = selectedIds.size === 0;
+    }
+
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const q = e.target.value.toLowerCase();
+      renderList(allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+    });
+
+    document.getElementById('selectAll').addEventListener('click', () => {
+      const visible = document.querySelectorAll('#userList input[type="checkbox"]');
+      visible.forEach(cb => { cb.checked = true; selectedIds.add(cb.value); });
+      updateCounter();
+    });
+
+    document.getElementById('deselectAll').addEventListener('click', () => {
+      const visible = document.querySelectorAll('#userList input[type="checkbox"]');
+      visible.forEach(cb => { cb.checked = false; selectedIds.delete(cb.value); });
+      updateCounter();
+    });
+
+    document.getElementById('dispararBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('dispararBtn');
+      const statusDiv = document.getElementById('status');
+      btn.disabled = true;
+      statusDiv.textContent = 'Enviando e-mails, aguarde...';
+      statusDiv.className = 'status loading';
+      try {
+        const resp = await fetch(API + '/api/disparar-bemvindo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: Array.from(selectedIds) }),
+        });
+        const data = await resp.json();
+        if (data.success) {
+          statusDiv.textContent = `Concluído! ${data.enviados} enviado(s), ${data.falhas} falha(s).`;
+          statusDiv.className = 'status success';
+        } else {
+          statusDiv.textContent = 'Erro: ' + (data.message || 'Falha desconhecida');
+          statusDiv.className = 'status error';
+        }
+      } catch (e) {
+        statusDiv.textContent = 'Erro de conexão: ' + e.message;
+        statusDiv.className = 'status error';
+      }
+      btn.disabled = false;
+    });
+
+    loadUsers();
+  </script>
+</body>
+</html>
