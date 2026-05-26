@@ -3,62 +3,325 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disparar E-mails de Boas-vindas</title>
+  <title>Disparador de E-mails – CSC</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
-    .container { max-width: 680px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e0e0e0; padding: 32px; }
-    h1 { color: #003366; font-size: 22px; text-align: center; margin-bottom: 24px; }
-    .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-    input[type="search"] { flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0 0 40px; }
+
+    /* ── Layout principal ── */
+    .page { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    .page-title { color: #003366; font-size: 22px; text-align: center; margin-bottom: 28px; }
+
+    /* ── Seções de passo ── */
+    .step { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e0e0e0; padding: 24px; margin-bottom: 20px; }
+    .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .step-badge { background: #003366; color: #fff; font-size: 13px; font-weight: bold;
+      border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-title { font-size: 16px; font-weight: bold; color: #003366; }
+
+    /* ── Cards de template ── */
+    .template-category { font-size: 12px; font-weight: bold; color: #888; text-transform: uppercase;
+      letter-spacing: .05em; margin: 14px 0 6px; }
+    .template-category:first-child { margin-top: 0; }
+    .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 4px; }
+    .template-card {
+      border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative; user-select: none;
+    }
+    .template-card:hover { border-color: #0057b8; background: #f0f6ff; }
+    .template-card.selected { border-color: #0057b8; background: #e8f1ff; }
+    .template-card .tc-label { font-size: 14px; font-weight: bold; color: #003366; margin-bottom: 4px; }
+    .template-card .tc-desc { font-size: 12px; color: #666; line-height: 1.4; }
+    .template-card .tc-check {
+      position: absolute; top: 10px; right: 10px; width: 18px; height: 18px;
+      border-radius: 50%; border: 2px solid #ccc; background: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 11px;
+    }
+    .template-card.selected .tc-check { background: #0057b8; border-color: #0057b8; color: #fff; }
+
+    /* ── Assunto e botão editar ── */
+    .subject-row { display: flex; gap: 10px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .subject-row label { font-size: 13px; color: #444; font-weight: bold; white-space: nowrap; }
+    .subject-row input { flex: 1; min-width: 200px; padding: 8px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .btn-outline {
+      padding: 8px 16px; background: #fff; color: #0057b8; border: 1.5px solid #0057b8;
+      border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-outline:hover { background: #0057b8; color: #fff; }
+    .btn-outline:disabled { border-color: #aaa; color: #aaa; cursor: not-allowed; background: #fff; }
+
+    /* ── Lista de usuários ── */
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    input[type="search"] { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     .btn-link { background: none; border: none; color: #0057b8; cursor: pointer; font-size: 13px; text-decoration: underline; padding: 0; }
-    .user-list { max-height: 380px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; margin-bottom: 16px; }
+    .counter { font-size: 13px; color: #555; margin-left: auto; }
+    .user-list { max-height: 360px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
     .user-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
     .user-item:last-child { border-bottom: none; }
     .user-item:hover { background: #f0f6ff; }
     .user-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: #0057b8; }
     .user-name { font-size: 14px; font-weight: bold; color: #222; }
     .user-email { font-size: 12px; color: #666; }
-    .counter { font-size: 13px; color: #555; margin-left: auto; }
+    .empty { padding: 24px; text-align: center; color: #999; }
+
+    /* ── Botão disparar ── */
     button.btn-primary {
-      width: 100%;
-      background: #0057b8;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
+      width: 100%; background: #0057b8; color: #fff; border: none; border-radius: 6px;
+      padding: 14px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s;
     }
     button.btn-primary:hover:not(:disabled) { background: #003f8a; }
     button.btn-primary:disabled { background: #aaa; cursor: not-allowed; }
-    .status { margin-top: 16px; font-size: 15px; text-align: center; }
+    .status { margin-top: 14px; font-size: 15px; text-align: center; }
     .success { color: #007a3d; }
     .error { color: #b80000; }
     .loading { color: #555; }
-    .empty { padding: 24px; text-align: center; color: #999; }
+
+    /* ── Modal editor ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 10px; width: 96vw; max-width: 1100px;
+      height: 88vh; display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.3);
+    }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid #e0e0e0; flex-shrink: 0;
+    }
+    .modal-head h2 { font-size: 16px; color: #003366; margin: 0; }
+    .modal-head-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-close {
+      background: none; border: none; font-size: 22px; cursor: pointer; color: #666;
+      line-height: 1; padding: 0 4px;
+    }
+    .modal-tabs { display: flex; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; }
+    .modal-tab {
+      padding: 10px 20px; font-size: 14px; cursor: pointer; border-bottom: 3px solid transparent;
+      background: none; border-top: none; border-left: none; border-right: none; color: #555;
+    }
+    .modal-tab.active { border-bottom-color: #0057b8; color: #0057b8; font-weight: bold; }
+    .modal-body { flex: 1; overflow: hidden; display: flex; }
+    .tab-panel { display: none; flex: 1; overflow: hidden; }
+    .tab-panel.active { display: flex; flex-direction: column; }
+    #previewFrame { width: 100%; height: 100%; border: none; flex: 1; }
+    #htmlEditor {
+      flex: 1; width: 100%; padding: 14px; font-family: 'Courier New', monospace;
+      font-size: 13px; border: none; resize: none; outline: none;
+      color: #1a1a1a; background: #fafafa; line-height: 1.5;
+    }
+    .modal-foot {
+      padding: 12px 20px; border-top: 1px solid #e0e0e0; display: flex;
+      justify-content: flex-end; gap: 10px; flex-shrink: 0;
+    }
+    .btn-save {
+      padding: 9px 22px; background: #0057b8; color: #fff; border: none;
+      border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer;
+    }
+    .btn-save:hover { background: #003f8a; }
+    .btn-cancel-modal {
+      padding: 9px 22px; background: #f1f1f1; color: #333; border: 1px solid #ccc;
+      border-radius: 6px; font-size: 14px; cursor: pointer;
+    }
+    .edited-badge {
+      display: none; font-size: 11px; background: #fef08a; color: #713f12;
+      border: 1px solid #fbbf24; border-radius: 4px; padding: 2px 8px; margin-left: 6px;
+    }
+    .edited-badge.show { display: inline; }
+
+    /* ── Botão excluir template ── */
+    .tc-delete {
+      position: absolute; bottom: 8px; right: 8px;
+      background: none; border: 1px solid #fca5a5; color: #dc2626;
+      border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: bold;
+      cursor: pointer; line-height: 1.5; transition: background 0.15s, border-color 0.15s;
+    }
+    .tc-delete:hover { background: #fee2e2; border-color: #dc2626; }
+
+    /* ── Toolbar do editor ── */
+    .editor-toolbar {
+      display: none; align-items: center; gap: 8px; padding: 8px 12px;
+      background: #f1f5f9; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; flex-wrap: wrap;
+    }
+    .editor-toolbar.visible { display: flex; }
+    .editor-toolbar label {
+      font-size: 12px; color: #555; white-space: nowrap;
+    }
+    .btn-toolbar {
+      display: flex; align-items: center; gap: 5px; padding: 5px 12px;
+      background: #fff; border: 1px solid #cbd5e1; border-radius: 5px;
+      font-size: 12px; color: #003366; cursor: pointer; font-weight: bold;
+      transition: background 0.15s;
+    }
+    .btn-toolbar:hover { background: #e0ecff; border-color: #0057b8; }
+    .upload-progress {
+      font-size: 11px; color: #0057b8; display: none; align-items: center; gap: 6px;
+    }
+    .upload-progress.show { display: flex; }
+    .img-size-note { font-size: 11px; color: #888; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Disparar E-mails de Boas-vindas</h1>
-    <div class="toolbar">
-      <input type="search" id="searchInput" placeholder="Buscar por nome ou e-mail..." />
-      <button class="btn-link" id="selectAll">Selecionar todos</button>
-      <button class="btn-link" id="deselectAll">Desmarcar todos</button>
-      <span class="counter" id="counter">0 selecionados</span>
+  <div class="page">
+    <h1 class="page-title">Disparador de E-mails – Portal CSC</h1>
+
+    <!-- PASSO 1: Selecionar modelo -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-badge">1</div>
+        <div class="step-title">Selecione o modelo de e-mail</div>
+      </div>
+      <div id="templateGrid">
+        <div class="empty">Carregando modelos...</div>
+      </div>
+      <div class="subject-row">
+        <label for="subjectInput">Assunto:</label>
+        <input type="text" id="subjectInput" placeholder="Assunto do e-mail..." />
+        <button class="btn-outline" id="editarBtn" disabled>✏️ Visualizar / Editar</button>
+      </div>
     </div>
-    <div class="user-list" id="userList"><div class="empty">Carregando usuários...</div></div>
+
+    <!-- PASSO 2: Selecionar destinatários -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-badge">2</div>
+        <div class="step-title">Selecione os destinatários</div>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="searchInput" placeholder="Buscar por nome ou e-mail..." />
+        <button class="btn-link" id="selectAll">Selecionar todos</button>
+        <button class="btn-link" id="deselectAll">Desmarcar todos</button>
+        <span class="counter" id="counter">0 selecionados</span>
+      </div>
+      <div class="user-list" id="userList"><div class="empty">Carregando usuários...</div></div>
+    </div>
+
+    <!-- BOTÃO DISPARAR -->
     <button class="btn-primary" id="dispararBtn" disabled>Disparar e-mails</button>
     <div class="status" id="status"></div>
+  </div>
+
+  <!-- MODAL EDITOR -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Editor de Template <span class="edited-badge" id="editedBadge">modificado</span></h2>
+        <div class="modal-head-actions">
+          <button class="btn-close" id="modalCloseBtn" title="Fechar">✕</button>
+        </div>
+      </div>
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="preview">👁 Preview</button>
+        <button class="modal-tab" data-tab="editor">📝 Editar HTML</button>
+      </div>
+      <!-- Toolbar visível apenas na aba editor -->
+      <div class="editor-toolbar" id="editorToolbar">
+        <button class="btn-toolbar" id="btnUploadImg" title="Insere a imagem como base64 diretamente no HTML">
+          🖼️ Inserir Imagem
+        </button>
+        <input type="file" id="imgFileInput" accept="image/*" multiple style="display:none" />
+        <span class="upload-progress" id="uploadProgress">⏳ Processando...</span>
+        <span class="img-size-note">Imagens são embutidas diretamente no e-mail (base64)</span>
+      </div>
+      <div class="modal-body">
+        <div class="tab-panel active" id="panelPreview">
+          <iframe id="previewFrame" sandbox="allow-same-origin allow-scripts"></iframe>
+          <input type="file" id="imgFileInputPreview" accept="image/*" style="display:none" />
+        </div>
+        <div class="tab-panel" id="panelEditor">
+          <textarea id="htmlEditor" spellcheck="false"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn-cancel-modal" id="modalCancelBtn">Cancelar</button>
+        <button class="btn-save" id="modalSaveBtn">Salvar alterações</button>
+      </div>
+    </div>
   </div>
 
   <script>
     const API = 'http://localhost:5407';
     let allUsers = [];
     let selectedIds = new Set();
+    let selectedTemplate = null;   // { id, label, subject, description }
+    let customHtml = null;          // HTML editado pelo usuário (null = usa o original)
+    let originalHtml = '';          // HTML original do template selecionado
+    let editorTempHtml = '';        // HTML em edição no modal (antes de salvar)
 
+    // ────────────────────────────────
+    // TEMPLATES
+    // ────────────────────────────────
+    async function loadTemplates() {
+      try {
+        const resp = await fetch(API + '/api/templates');
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message);
+        renderTemplates(data.templates);
+      } catch (e) {
+        document.getElementById('templateGrid').innerHTML =
+          '<div class="empty error">Erro ao carregar modelos: ' + e.message + '</div>';
+      }
+    }
+
+    function renderTemplates(templates) {
+      const container = document.getElementById('templateGrid');
+      // Agrupa por categoria
+      const groups = {};
+      templates.forEach(t => {
+        const cat = t.category || 'Geral';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(t);
+      });
+      let html = '';
+      for (const [cat, items] of Object.entries(groups)) {
+        html += `<div class="template-category">${cat}</div>`;
+        html += `<div class="template-grid">`;
+        html += items.map(t => `
+          <div class="template-card" data-id="${t.id}" data-subject="${t.subject}" data-label="${t.label}" data-desc="${t.description}">
+            <div class="tc-check">✓</div>
+            <div class="tc-label">${t.label}</div>
+            <div class="tc-desc">${t.description}</div>
+            ${t.id.startsWith('csc/newsletters/') ? `<button class="tc-delete" title="Remover template">🗑️ Excluir</button>` : ''}
+          </div>
+        `).join('');
+        html += `</div>`;
+      }
+      container.innerHTML = html;
+      container.querySelectorAll('.template-card').forEach(card => {
+        card.addEventListener('click', () => selectTemplate(card));
+      });
+      container.querySelectorAll('.tc-delete').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const card = btn.closest('.template-card');
+          confirmDeleteTemplate(card.dataset.id, card.dataset.label);
+        });
+      });
+    }
+
+    function selectTemplate(card) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedTemplate = {
+        id: card.dataset.id,
+        label: card.dataset.label,
+        subject: card.dataset.subject,
+        description: card.dataset.desc,
+      };
+      document.getElementById('subjectInput').value = selectedTemplate.subject;
+      document.getElementById('editarBtn').disabled = false;
+      customHtml = null;
+      originalHtml = '';
+      document.getElementById('editedBadge').classList.remove('show');
+      updateDispararBtn();
+    }
+
+    // ────────────────────────────────
+    // USUÁRIOS
+    // ────────────────────────────────
     async function loadUsers() {
       try {
         const resp = await fetch(API + '/api/usuarios');
@@ -67,7 +330,8 @@
         allUsers = data.usuarios;
         renderList(allUsers);
       } catch (e) {
-        document.getElementById('userList').innerHTML = '<div class="empty error">Erro ao carregar usuários: ' + e.message + '</div>';
+        document.getElementById('userList').innerHTML =
+          '<div class="empty error">Erro ao carregar usuários: ' + e.message + '</div>';
       }
     }
 
@@ -75,7 +339,7 @@
       const list = document.getElementById('userList');
       if (!users.length) { list.innerHTML = '<div class="empty">Nenhum usuário encontrado.</div>'; return; }
       list.innerHTML = users.map(u => `
-        <label class="user-item" data-id="${u.id}">
+        <label class="user-item">
           <input type="checkbox" value="${u.id}" ${selectedIds.has(String(u.id)) ? 'checked' : ''} />
           <div>
             <div class="user-name">${u.name}</div>
@@ -92,38 +356,260 @@
     }
 
     function updateCounter() {
-      document.getElementById('counter').textContent = selectedIds.size + ' selecionado' + (selectedIds.size !== 1 ? 's' : '');
-      document.getElementById('dispararBtn').disabled = selectedIds.size === 0;
+      document.getElementById('counter').textContent =
+        selectedIds.size + ' selecionado' + (selectedIds.size !== 1 ? 's' : '');
+      updateDispararBtn();
+    }
+
+    function updateDispararBtn() {
+      document.getElementById('dispararBtn').disabled =
+        selectedIds.size === 0 || !selectedTemplate;
     }
 
     document.getElementById('searchInput').addEventListener('input', e => {
       const q = e.target.value.toLowerCase();
-      renderList(allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+      renderList(allUsers.filter(u =>
+        u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
     });
 
     document.getElementById('selectAll').addEventListener('click', () => {
-      const visible = document.querySelectorAll('#userList input[type="checkbox"]');
-      visible.forEach(cb => { cb.checked = true; selectedIds.add(cb.value); });
+      document.querySelectorAll('#userList input[type="checkbox"]').forEach(cb => {
+        cb.checked = true; selectedIds.add(cb.value);
+      });
       updateCounter();
     });
 
     document.getElementById('deselectAll').addEventListener('click', () => {
-      const visible = document.querySelectorAll('#userList input[type="checkbox"]');
-      visible.forEach(cb => { cb.checked = false; selectedIds.delete(cb.value); });
+      document.querySelectorAll('#userList input[type="checkbox"]').forEach(cb => {
+        cb.checked = false; selectedIds.delete(cb.value);
+      });
       updateCounter();
     });
 
+    // ────────────────────────────────
+    // MODAL EDITOR
+    // ────────────────────────────────
+    document.getElementById('editarBtn').addEventListener('click', async () => {
+      if (!selectedTemplate) return;
+      if (!originalHtml) {
+        try {
+          const resp = await fetch(API + '/api/template/' + selectedTemplate.id);
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.message);
+          originalHtml = data.html;
+        } catch (e) {
+          alert('Erro ao carregar template: ' + e.message);
+          return;
+        }
+      }
+      editorTempHtml = customHtml || originalHtml;
+      document.getElementById('htmlEditor').value = editorTempHtml;
+      updatePreview(editorTempHtml);
+      openModal();
+    });
+
+    function openModal() {
+      document.getElementById('modalOverlay').classList.add('open');
+      switchTab('preview');
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    });
+
+    document.getElementById('modalSaveBtn').addEventListener('click', () => {
+      const edited = document.getElementById('htmlEditor').value;
+      customHtml = edited;
+      document.getElementById('editedBadge').classList.add('show');
+      closeModal();
+    });
+
+    // Troca de abas
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    function switchTab(name) {
+      document.querySelectorAll('.modal-tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.tab-panel').forEach(p =>
+        p.classList.remove('active'));
+      if (name === 'preview') {
+        document.getElementById('panelPreview').classList.add('active');
+        document.getElementById('editorToolbar').classList.remove('visible');
+        // Sincroniza preview com o editor ao voltar para a aba
+        updatePreview(document.getElementById('htmlEditor').value);
+      } else {
+        document.getElementById('panelEditor').classList.add('active');
+        document.getElementById('editorToolbar').classList.add('visible');
+      }
+    }
+
+    function updatePreview(html) {
+      const frame = document.getElementById('previewFrame');
+      let preview = html.replace(/{{NOME}}/g, 'João da Silva (Exemplo)');
+      // Injeta script para tornar os placeholders clicáveis no preview
+      const clickScript = '<script>' +
+        '(function(){' +
+          'var els=document.querySelectorAll(".imagem-placeholder");' +
+          'els.forEach(function(el,i){' +
+            'el.style.cursor="pointer";' +
+            'el.style.border="2px dashed #0057b8";' +
+            'el.style.background="#dbeafe";' +
+            'el.style.color="#1e3a8a";' +
+            'var hint=document.createElement("div");' +
+            'hint.style.cssText="margin-top:8px;font-size:12px;font-weight:bold;color:#0057b8;";' +
+            'hint.textContent="\uD83D\uDCCE Clique para inserir imagem";' +
+            'el.appendChild(hint);' +
+            'el.addEventListener("click",function(){' +
+              'window.parent.postMessage({type:"REPLACE_PLACEHOLDER",index:i},"*");' +
+            '});' +
+          '});' +
+        '})();' +
+      '<\/script>';
+      preview = preview.replace('</body>', clickScript + '</body>');
+      frame.srcdoc = preview;
+    }
+
+    // ────────────────────────────────
+    // UPLOAD DE IMAGENS (base64 inline)
+    // ────────────────────────────────
+    document.getElementById('btnUploadImg').addEventListener('click', () => {
+      document.getElementById('imgFileInput').click();
+    });
+
+    document.getElementById('imgFileInput').addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      const progress = document.getElementById('uploadProgress');
+      progress.classList.add('show');
+
+      const editor = document.getElementById('htmlEditor');
+      const pos = editor.selectionEnd;
+      let insertHtml = '';
+
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        const dataUrl = await fileToBase64(file);
+        const safeName = file.name.replace(/[<>"'&]/g, '');
+        insertHtml += `\n<img src="${dataUrl}" alt="${safeName}" style="max-width:100%; height:auto; display:block; margin:12px 0;" />\n`;
+      }
+
+      // Insere na posição do cursor
+      const current = editor.value;
+      editor.value = current.slice(0, pos) + insertHtml + current.slice(pos);
+      editor.selectionStart = editor.selectionEnd = pos + insertHtml.length;
+      editor.focus();
+
+      // Dispara evento de input para atualizar preview
+      editor.dispatchEvent(new Event('input'));
+
+      progress.classList.remove('show');
+      // Limpa o input para permitir reenvio do mesmo arquivo
+      e.target.value = '';
+    });
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Falha ao ler o arquivo'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Substitui o placeholder de índice N no HTML pela imagem
+    // A regex aceita atributos extras (ex: style="...") no elemento
+    function replacePlaceholderAtIndex(html, index, replacement) {
+      let count = 0;
+      return html.replace(/<div class="imagem-placeholder"[^>]*>[\s\S]*?<\/div>/g, (match) => {
+        if (count === index) { count++; return replacement; }
+        count++;
+        return match;
+      });
+    }
+
+    // ────────────────────────────────
+    // CLIQUE NOS PLACEHOLDERS DO PREVIEW
+    // ────────────────────────────────
+    let _pendingPlaceholderIndex = null;
+
+    window.addEventListener('message', (e) => {
+      if (!e.data || e.data.type !== 'REPLACE_PLACEHOLDER') return;
+      const frame = document.getElementById('previewFrame');
+      if (e.source !== frame.contentWindow) return;
+      _pendingPlaceholderIndex = e.data.index;
+      document.getElementById('imgFileInputPreview').click();
+    });
+
+    document.getElementById('imgFileInputPreview').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || _pendingPlaceholderIndex === null) return;
+      const progress = document.getElementById('uploadProgress');
+      progress.classList.add('show');
+      try {
+        const dataUrl = await fileToBase64(file);
+        const safeName = file.name.replace(/[<>"'&]/g, '');
+        const imgTag = '<img src="' + dataUrl + '" alt="' + safeName + '" style="max-width:100%; height:auto; display:block; margin:12px 0;" />';
+        const base = customHtml || originalHtml;
+        const updated = replacePlaceholderAtIndex(base, _pendingPlaceholderIndex, imgTag);
+        customHtml = updated;
+        document.getElementById('htmlEditor').value = updated;
+        document.getElementById('editedBadge').classList.add('show');
+        updatePreview(updated);
+      } catch (err) {
+        alert('Erro ao processar imagem: ' + err.message);
+      }
+      progress.classList.remove('show');
+      _pendingPlaceholderIndex = null;
+      e.target.value = '';
+    });
+
+    // Atualiza preview em tempo real ao editar
+    document.getElementById('htmlEditor').addEventListener('input', e => {
+      // Não atualiza o preview enquanto o usuário ainda está digitando para não travar
+      clearTimeout(window._previewTimer);
+      window._previewTimer = setTimeout(() => {
+        if (document.getElementById('panelPreview').classList.contains('active')) {
+          updatePreview(e.target.value);
+        }
+      }, 600);
+    });
+
+    // ────────────────────────────────
+    // DISPARAR
+    // ────────────────────────────────
     document.getElementById('dispararBtn').addEventListener('click', async () => {
       const btn = document.getElementById('dispararBtn');
       const statusDiv = document.getElementById('status');
+      const subject = document.getElementById('subjectInput').value.trim();
+      if (!subject) {
+        statusDiv.textContent = 'Informe o assunto do e-mail.';
+        statusDiv.className = 'status error';
+        return;
+      }
       btn.disabled = true;
       statusDiv.textContent = 'Enviando e-mails, aguarde...';
       statusDiv.className = 'status loading';
       try {
-        const resp = await fetch(API + '/api/disparar-bemvindo', {
+        const body = {
+          userIds: Array.from(selectedIds),
+          templateId: selectedTemplate.id,
+          subject,
+        };
+        if (customHtml) body.customHtml = customHtml;
+
+        const resp = await fetch(API + '/api/disparar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userIds: Array.from(selectedIds) }),
+          body: JSON.stringify(body),
         });
         const data = await resp.json();
         if (data.success) {
@@ -137,9 +623,38 @@
         statusDiv.textContent = 'Erro de conexão: ' + e.message;
         statusDiv.className = 'status error';
       }
-      btn.disabled = false;
+      updateDispararBtn();
     });
 
+    // ────────────────────────────────
+    // EXCLUIR TEMPLATE
+    // ────────────────────────────────
+    async function confirmDeleteTemplate(id, label) {
+      if (!confirm(`Remover o template "${label}"?\n\nEsta ação não pode ser desfeita.`)) return;
+      try {
+        const resp = await fetch(API + '/api/template/' + id, { method: 'DELETE' });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message);
+
+        if (selectedTemplate && selectedTemplate.id === id) {
+          selectedTemplate = null;
+          customHtml = null;
+          originalHtml = '';
+          document.getElementById('subjectInput').value = '';
+          document.getElementById('editarBtn').disabled = true;
+          document.getElementById('editedBadge').classList.remove('show');
+          updateDispararBtn();
+        }
+        loadTemplates();
+      } catch (e) {
+        alert('Erro ao remover: ' + e.message);
+      }
+    }
+
+    // ────────────────────────────────
+    // INIT
+    // ────────────────────────────────
+    loadTemplates();
     loadUsers();
   </script>
 </body>

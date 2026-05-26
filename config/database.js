@@ -1,26 +1,24 @@
 import sql from 'mssql';
 import 'dotenv/config';
 
+// Suporte a instância nomeada (ex: SERVER\SQLEXPRESS) — usa porta 1433 diretamente
+// pois o SQL Server Browser (porta UDP 1434) pode estar indisponível
+const serverRaw = process.env.DB_SERVER || '';
+const serverHost = serverRaw.includes('\\') ? serverRaw.split('\\')[0] : serverRaw;
+
 const config = {
-  server: process.env.DB_SERVER,
+  server: serverHost,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE || 'master',
+  port: parseInt(process.env.DB_PORT || '1433', 10),
   options: {
     encrypt: false,
     trustServerCertificate: true,
-    instanceName: undefined,
   },
-  port: 1433,
+  connectionTimeout: 15000,
+  requestTimeout: 30000,
 };
-
-// Suporte a instância nomeada (ex: SERVER\SQLEXPRESS)
-if (config.server && config.server.includes('\\')) {
-  const parts = config.server.split('\\');
-  config.server = parts[0];
-  config.options.instanceName = parts[1];
-  delete config.port;
-}
 
 let pool = null;
 

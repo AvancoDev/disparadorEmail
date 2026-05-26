@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal CSC - Novidades de 22/05/2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .greeting strong {
+            color: #1e3a8a;
+        }
+
+        .nova-secao {
+            margin-bottom: 35px;
+        }
+
+        .nova-secao h3 {
+            color: #1e3a8a;
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nova-secao p {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .nova-secao ul {
+            list-style: none;
+            margin: 12px 0;
+        }
+
+        .nova-secao li {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .nova-secao li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .imagem-placeholder {
+            background-color: #e5e7eb;
+            border: 2px dashed #9ca3af;
+            border-radius: 6px;
+            padding: 40px;
+            text-align: center;
+            margin: 15px 0;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .destaque-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #0c4a6e;
+        }
+
+        .como-usar {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 25px;
+            margin: 30px 0;
+            border: 1px solid #e5e7eb;
+        }
+
+        .como-usar h3 {
+            color: #1e3a8a;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .passo {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .numero {
+            background-color: #3b82f6;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .passo p {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .badge-novo {
+            font-size: 10px;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            border-radius: 20px;
+            padding: 2px 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        .badge-atualizacao {
+            font-size: 10px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+            border-radius: 20px;
+            padding: 2px 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e5e7eb;
+            margin: 30px 0;
+        }
+
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .button:hover {
+            background-color: #2563eb;
+        }
+
+        .copyright {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+
+            .header {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .nova-secao {
+                margin-bottom: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- CABEÇALHO -->
+        <div class="header">
+            <h1>📬 Portal CSC</h1>
+            <p>Novidades da Semana 22/05/2026</p>
+        </div>
+
+        <!-- CONTEÚDO -->
+        <div class="content">
+            <!-- SAUDAÇÃO -->
+            <div class="greeting">
+                <p>Olá, <strong>equipe Avanço!</strong> 👋</p>
+                <p style="margin-top: 10px;">Esta semana o <strong>Portal CSC</strong> recebeu uma série de melhorias pensadas para deixar o seu dia a dia mais ágil e organizado. Tudo o que você vê e usa foi aprimorado.</p>
+                <p style="margin-top: 15px;">Confira abaixo as <strong>8 novidades</strong> desta semana:</p>
+            </div>
+
+            <!-- NOVIDADE 1 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>📁 Nova Aba Unificada: "Gestão de Serviços" <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                As abas de <strong>Gestão de Tickets</strong>, <strong>Catálogo de Serviços</strong> e <strong>Avaliações</strong> foram reunidas em um único lugar chamado <strong>"Gestão de Serviços"</strong>. Tudo o que você precisa está agora em uma só tela.</p>
+
+                <ul>
+                    <li>Navegação mais simples e intuitiva</li>
+                    <li>Acesse chamados, catálogo e avaliações sem sair da mesma área</li>
+                    <li>Menu mais organizado e menos poluído</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Nova aba "Gestão de Serviços" unificada]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Organização visual que facilita a navegação tudo o que você precisa na mesma área, sem se perder no menu!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 2 NOVO -->
+            <div class="nova-secao">
+                <h3>⭐ Suas Avaliações Registradas e Guardadas <span class="badge-novo">Novo</span></h3>
+                <p><strong>O que é?</strong><br>
+                A aba de Avaliações agora armazena todo o <strong>histórico das suas avaliações</strong> anteriores. Além de avaliar atendimentos concluídos com 1 a 5 estrelas, você pode consultar tudo o que já avaliou.</p>
+
+                <ul>
+                    <li>Avaliações com estrelas (1 a 5) e comentário opcional</li>
+                    <li>Histórico completo de todas as suas avaliações anteriores</li>
+                    <li>Veja os chamados que ainda aguardam sua avaliação</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Tela de avaliações com histórico]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Acompanhe sua participação na melhoria dos serviços e consulte tudo o que você já avaliou!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 2 NOVO -->
+            <div class="nova-secao">
+                <h3>🔗 Fluxo de Solicitação Unificado <span class="badge-novo">Novo</span></h3>
+                <p><strong>O que é?</strong><br>
+                Quando você abre um chamado que envolve mais de um setor, a tela de confirmação foi reformulada para deixar tudo <strong>muito mais visual e fácil de entender</strong>.</p>
+
+                <p><strong>Como funciona agora:</strong></p>
+                <ul>
+                    <li>Serviços vinculados <strong style="color: #dc2626;">obrigatórios</strong> aparecem destacados em vermelho são sempre incluídos</li>
+                    <li>Serviços vinculados <strong style="color: #d97706;">opcionais</strong> aparecem em amarelo você pode incluir ou não</li>
+                    <li>Visão clara do que será acionado antes de confirmar</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Modal com dependências em vermelho (obrigatório) e amarelo (opcional)]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Saiba exatamente o que está sendo solicitado antes de confirmar sem surpresas!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 3 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>🏷️ Identifique seus Chamados com Facilidade <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                Cada ticket agora exibe o seu <strong>número de identificação</strong> diretamente no card. O nome/título do chamado passou a ser exibido de forma mais discreta e organizada, deixando a tela mais limpa e fácil de ler.</p>
+
+                <ul>
+                    <li>Número do chamado visível sem precisar abrir o ticket</li>
+                    <li>Visual mais limpo e menos poluído na listagem</li>
+                    <li>Facilita localizar e referenciar um chamado específico</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Card do ticket com o número de identificação visível]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Encontre e cite seus chamados instantaneamente pelo número, sem confusão!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 3 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>🔍 Filtro de Busca <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                A busca e os filtros do portal foram completamente aprimorados. Agora você pode encontrar qualquer chamado de forma muito mais precisa.</p>
+
+                <p><strong>Você pode filtrar por:</strong></p>
+                <ul>
+                    <li><strong>Número do ticket</strong> localize exatamente o chamado que procura</li>
+                    <li><strong>Nome / título</strong> busque pelo assunto da solicitação</li>
+                    <li><strong>Nome do solicitante</strong> veja todos os chamados de uma pessoa</li>
+                    <li><strong>Recebidos</strong> chamados que chegaram para você atender</li>
+                    <li><strong>Enviados</strong> chamados que você mesmo abriu</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Painel de filtros com as novas opções]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Menos tempo procurando, mais tempo resolvendo. Encontre qualquer chamado em segundos!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 4 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>📋 Histórico do Chamado Mais Detalhado <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                O log de movimentações dentro de cada ticket foi reformulado e agora apresenta as informações de forma mais clara e organizada.</p>
+
+                <ul>
+                    <li>Veja exatamente o que aconteceu em cada etapa do chamado</li>
+                    <li>Data, hora e ação registradas de forma legível</li>
+                    <li>Acompanhe todo o histórico sem dificuldade</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Log detalhado de movimentações do chamado]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Mais transparência você sabe exatamente o que aconteceu com o seu chamado, passo a passo!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 5 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>↔️ Redirecionamento de Chamados <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                O redirecionamento de tickets foi simplificado. Agora o encaminhamento é feito <strong>diretamente pelo atendente responsável da torre</strong>, de forma mais rápida e sem ambiguidade.</p>
+
+                <ul>
+                    <li>Processo mais ágil e com menos etapas</li>
+                    <li>Responsabilidade do redirecionamento clara e definida</li>
+                    <li>Chamado chega mais rápido para a pessoa certa</li>
+                </ul>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Tela de redirecionamento de chamado]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Seu chamado vai direto para quem precisa atendê-lo, sem demora!
+                </div>
+            </div>
+
+            <!-- NOVIDADE 8 ATUALIZAÇÃO -->
+            <div class="nova-secao">
+                <h3>🔔 Notificações Mais Completas <span class="badge-atualizacao">Atualização</span></h3>
+                <p><strong>O que mudou?</strong><br>
+                O sistema de avisos foi renovado para mantê-lo sempre informado sobre cada etapa dos seus chamados.</p>
+
+                <p><strong>Você recebe avisos automáticos sobre:</strong></p>
+                <ul>
+                    <li>Aprovações e encaminhamentos</li>
+                    <li>Andamento e conclusão do chamado</li>
+                    <li>Redirecionamento para outro setor</li>
+                    <li>Novas mensagens nos seus tickets</li>
+                </ul>
+
+                <p style="margin-top: 10px;"><strong>Entrega:</strong> no portal e por e-mail corporativo.</p>
+
+                <div class="imagem-placeholder">
+                    [INSERIR PRINT: Central de notificações renovada]
+                </div>
+
+                <div class="destaque-box">
+                    ✨ <strong>Benefício:</strong> Fique por dentro de cada etapa sem precisar ficar atualizando o portal!
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- RESUMO -->
+            <div class="como-usar">
+                <h3>💡 O que essas novidades significam para você</h3>
+
+                <div class="passo">
+                    <div class="numero">1</div>
+                    <p><strong>Encontre qualquer chamado em segundos</strong><br><span style="color: #666; font-size: 13px;">Busque por número, nome ou solicitante e filtre entre recebidos e enviados</span></p>
+                </div>
+                <div class="passo">
+                    <div class="numero">2</div>
+                    <p><strong>Tudo em um só lugar</strong><br><span style="color: #666; font-size: 13px;">Chamados, catálogo e avaliações reunidos na nova aba "Gestão de Serviços"</span></p>
+                </div>
+                <div class="passo">
+                    <div class="numero">3</div>
+                    <p><strong>Transparência total no seu chamado</strong><br><span style="color: #666; font-size: 13px;">Histórico detalhado de cada movimentação dentro do ticket</span></p>
+                </div>
+                <div class="passo">
+                    <div class="numero">4</div>
+                    <p><strong>Solicitações multi-setor sem surpresas</strong><br><span style="color: #666; font-size: 13px;">Vermelho = obrigatório, amarelo = opcional. Tudo claro antes de confirmar</span></p>
+                </div>
+                <div class="passo">
+                    <div class="numero">5</div>
+                    <p><strong>Sempre informado sobre seus chamados</strong><br><span style="color: #666; font-size: 13px;">Notificações automáticas a cada movimentação, no portal e por e-mail</span></p>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="http://193.123.99.236:5406/" class="button">Acessar Portal CSC</a>
+            </div>
+
+        </div><!-- /content -->
+
+        <!-- RODAPÉ -->
+        <div class="footer">
+            <p><strong>Portal CSC - desenvolvido pela Equipe de T.I. da Avanço S/A</strong></p>
+            <p>Trabalhamos continuamente para tornar sua experiência mais ágil, segura e eficiente.</p>
+            <p style="margin-top: 20px; font-size: 13px; font-weight: 600; color: #1e3a8a;">🚀 Acesse agora e confira as novidades!</p>
+
+            <div class="copyright">
+                <p>Portal CSC | Semana de 16 a 22 de maio de 2026</p>
+                <p>✅ Já está ao vivo!</p>
+                <p style="margin-top: 8px;">Este e-mail foi enviado automaticamente. Não responda a esta mensagem.<br>© Avanço S/A CSC - Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

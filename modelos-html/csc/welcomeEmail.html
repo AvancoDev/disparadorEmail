@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo ao Portal CSC</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #e0e0e0; padding: 32px; }
+        h1 { color: #003366; }
+        p { color: #333; line-height: 1.6; }
+        .button {
+            display: inline-block;
+            background: #0057b8;
+            color: #fff !important;
+            padding: 14px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 24px 0 16px 0;
+            font-size: 18px;
+        }
+        .footer { font-size: 13px; color: #888; margin-top: 32px; }
+        @media (max-width: 600px) {
+            .container { padding: 16px; }
+            h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bem-vindo, {{NOME}}!</h1>
+        <p>É um prazer tê-lo(a) conosco no <strong>Portal CSC - Avanço S/A</strong>.</p>
+        <p>O Portal CSC é a sua nova plataforma centralizada para abertura de chamados, acompanhamento de solicitações e gestão de demandas corporativas. Ele substitui o uso de e-mails e processos informais, tornando tudo mais ágil, seguro e organizado.</p>
+        <a href="http://193.123.99.236:5406/" class="button">Acessar Portal CSC</a>
+        <p>Utilize o portal para:
+            <ul>
+                <li>Abrir chamados de forma rápida e prática</li>
+                <li>Acompanhar o status das suas solicitações</li>
+                <li>Centralizar toda a comunicação corporativa</li>
+            </ul>
+        </p>
+        <p>Em caso de dúvidas ou dificuldades, entre em contato com nosso suporte T.I.</p>
+        <div class="footer">
+            Este e-mail foi enviado automaticamente. Não responda a esta mensagem.<br>
+            © Avanço S/A CSC - Todos os direitos reservados.
+        </div>
+    </div>
+</body>
+</html>
