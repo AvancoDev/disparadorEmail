@@ -50,11 +50,67 @@
     }
     .btn-outline:hover { background: #0057b8; color: #fff; }
     .btn-outline:disabled { border-color: #aaa; color: #aaa; cursor: not-allowed; background: #fff; }
+    .btn-secondary {
+      padding: 8px 16px; background: #f8fafc; color: #1e40af; border: 1.5px solid #93c5fd;
+      border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-secondary:hover { background: #dbeafe; border-color: #1d4ed8; }
+
+    /* ── Modal: Nova newsletter ── */
+    .create-modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, .5);
+      z-index: 120; align-items: center; justify-content: center; padding: 16px;
+    }
+    .create-modal-overlay.open { display: flex; }
+    .create-modal {
+      width: 100%; max-width: 520px; background: #fff; border-radius: 10px;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, .28); overflow: hidden;
+    }
+    .create-modal-head {
+      padding: 16px 18px; border-bottom: 1px solid #e2e8f0;
+      font-size: 16px; font-weight: bold; color: #1e3a8a;
+    }
+    .create-modal-body { padding: 16px 18px; }
+    .create-modal-row { margin-bottom: 12px; }
+    .create-modal-row:last-child { margin-bottom: 0; }
+    .create-modal-row label {
+      display: block; margin-bottom: 6px; font-size: 13px; font-weight: bold; color: #334155;
+    }
+    .create-modal-row input {
+      width: 100%; padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;
+    }
+    .create-modal-hint {
+      margin-top: 8px; font-size: 12px; color: #64748b;
+    }
+    .create-modal-foot {
+      display: flex; justify-content: flex-end; gap: 10px;
+      padding: 12px 18px; border-top: 1px solid #e2e8f0;
+    }
+    .btn-modal-primary {
+      padding: 9px 18px; border-radius: 6px; border: none; background: #1d4ed8;
+      color: #fff; font-size: 13px; font-weight: bold; cursor: pointer;
+    }
+    .btn-modal-primary:hover { background: #1e40af; }
+    .btn-modal-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+    .btn-modal-cancel {
+      padding: 9px 18px; border-radius: 6px; border: 1px solid #cbd5e1;
+      background: #fff; color: #334155; font-size: 13px; cursor: pointer;
+    }
+    .create-modal-error {
+      margin-top: 10px; font-size: 12px; color: #b91c1c; min-height: 16px;
+    }
 
     /* ── Lista de usuários ── */
     .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
     input[type="search"] { flex: 1; min-width: 180px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     .btn-link { background: none; border: none; color: #0057b8; cursor: pointer; font-size: 13px; text-decoration: underline; padding: 0; }
+    .btn-refresh {
+      padding: 6px 12px; border: 1px solid #cbd5e1; background: #fff; color: #1e40af;
+      border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer;
+    }
+    .btn-refresh:hover { background: #eff6ff; border-color: #93c5fd; }
+    .btn-refresh:disabled { opacity: .65; cursor: not-allowed; }
     .counter { font-size: 13px; color: #555; margin-left: auto; }
     .user-list { max-height: 360px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 6px; }
     .user-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
@@ -180,6 +236,7 @@
       <div class="subject-row">
         <label for="subjectInput">Assunto:</label>
         <input type="text" id="subjectInput" placeholder="Assunto do e-mail..." />
+        <button class="btn-secondary" id="novaNewsletterBtn">+ Nova newsletter</button>
         <button class="btn-outline" id="editarBtn" disabled>✏️ Visualizar / Editar</button>
       </div>
     </div>
@@ -192,6 +249,7 @@
       </div>
       <div class="toolbar">
         <input type="search" id="searchInput" placeholder="Buscar por nome ou e-mail..." />
+        <button class="btn-refresh" id="refreshUsersBtn" title="Recarregar usuários do banco">Atualizar lista</button>
         <button class="btn-link" id="selectAll">Selecionar todos</button>
         <button class="btn-link" id="deselectAll">Desmarcar todos</button>
         <span class="counter" id="counter">0 selecionados</span>
@@ -202,6 +260,29 @@
     <!-- BOTÃO DISPARAR -->
     <button class="btn-primary" id="dispararBtn" disabled>Disparar e-mails</button>
     <div class="status" id="status"></div>
+  </div>
+
+  <!-- MODAL CRIAR NEWSLETTER -->
+  <div class="create-modal-overlay" id="createNewsletterOverlay">
+    <div class="create-modal" role="dialog" aria-modal="true" aria-labelledby="createNewsletterTitle">
+      <div class="create-modal-head" id="createNewsletterTitle">Nova newsletter</div>
+      <div class="create-modal-body">
+        <div class="create-modal-row">
+          <label for="newNewsletterName">Nome da newsletter</label>
+          <input type="text" id="newNewsletterName" placeholder="Ex: Newsletter Junho 2026" />
+        </div>
+        <div class="create-modal-row">
+          <label for="newNewsletterSubject">Assunto padrão (opcional)</label>
+          <input type="text" id="newNewsletterSubject" placeholder="Ex: Portal CSC - Newsletter Junho 2026" />
+        </div>
+        <div class="create-modal-hint">Se houver template selecionado, o HTML atual será usado como base.</div>
+        <div class="create-modal-error" id="createNewsletterError"></div>
+      </div>
+      <div class="create-modal-foot">
+        <button class="btn-modal-cancel" id="cancelCreateNewsletterBtn">Cancelar</button>
+        <button class="btn-modal-primary" id="confirmCreateNewsletterBtn">Criar e selecionar</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL EDITOR -->
@@ -260,9 +341,11 @@
         const data = await resp.json();
         if (!data.success) throw new Error(data.message);
         renderTemplates(data.templates);
+        return data.templates;
       } catch (e) {
         document.getElementById('templateGrid').innerHTML =
           '<div class="empty error">Erro ao carregar modelos: ' + e.message + '</div>';
+        return [];
       }
     }
 
@@ -323,15 +406,35 @@
     // USUÁRIOS
     // ────────────────────────────────
     async function loadUsers() {
+      const refreshBtn = document.getElementById('refreshUsersBtn');
+      if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Atualizando...';
+      }
       try {
         const resp = await fetch(API + '/api/usuarios');
         const data = await resp.json();
         if (!data.success) throw new Error(data.message);
-        allUsers = data.usuarios;
-        renderList(allUsers);
+        allUsers = Array.isArray(data.usuarios) ? data.usuarios : [];
+
+        // Mantém apenas IDs ainda existentes após refresh do banco.
+        const validIds = new Set(allUsers.map(u => String(u.id)));
+        selectedIds = new Set(Array.from(selectedIds).filter(id => validIds.has(id)));
+
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = q
+          ? allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
+          : allUsers;
+        renderList(filtered);
+        updateCounter();
       } catch (e) {
         document.getElementById('userList').innerHTML =
           '<div class="empty error">Erro ao carregar usuários: ' + e.message + '</div>';
+      } finally {
+        if (refreshBtn) {
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = 'Atualizar lista';
+        }
       }
     }
 
@@ -372,6 +475,8 @@
         u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
     });
 
+    document.getElementById('refreshUsersBtn').addEventListener('click', loadUsers);
+
     document.getElementById('selectAll').addEventListener('click', () => {
       document.querySelectorAll('#userList input[type="checkbox"]').forEach(cb => {
         cb.checked = true; selectedIds.add(cb.value);
@@ -384,6 +489,89 @@
         cb.checked = false; selectedIds.delete(cb.value);
       });
       updateCounter();
+    });
+
+    // ────────────────────────────────
+    // NOVA NEWSLETTER
+    // ────────────────────────────────
+    const createNewsletterOverlay = document.getElementById('createNewsletterOverlay');
+    const newNewsletterName = document.getElementById('newNewsletterName');
+    const newNewsletterSubject = document.getElementById('newNewsletterSubject');
+    const createNewsletterError = document.getElementById('createNewsletterError');
+    const confirmCreateNewsletterBtn = document.getElementById('confirmCreateNewsletterBtn');
+
+    document.getElementById('novaNewsletterBtn').addEventListener('click', () => {
+      newNewsletterName.value = '';
+      newNewsletterSubject.value = document.getElementById('subjectInput').value.trim();
+      createNewsletterError.textContent = '';
+      confirmCreateNewsletterBtn.disabled = false;
+      createNewsletterOverlay.classList.add('open');
+      newNewsletterName.focus();
+    });
+
+    function closeCreateNewsletterModal() {
+      createNewsletterOverlay.classList.remove('open');
+      createNewsletterError.textContent = '';
+      confirmCreateNewsletterBtn.disabled = false;
+    }
+
+    document.getElementById('cancelCreateNewsletterBtn').addEventListener('click', closeCreateNewsletterModal);
+    createNewsletterOverlay.addEventListener('click', e => {
+      if (e.target === createNewsletterOverlay) closeCreateNewsletterModal();
+    });
+
+    async function submitCreateNewsletter() {
+      const title = newNewsletterName.value.trim();
+      const subject = newNewsletterSubject.value.trim();
+
+      if (!title) {
+        createNewsletterError.textContent = 'Informe o nome da newsletter.';
+        newNewsletterName.focus();
+        return;
+      }
+
+      const body = { title };
+      if (subject) body.subject = subject;
+
+      // Se houver template carregado, aproveita o HTML atual como ponto de partida.
+      const base = customHtml || originalHtml;
+      if (base && typeof base === 'string' && base.trim()) {
+        body.baseHtml = base;
+      }
+
+      confirmCreateNewsletterBtn.disabled = true;
+      createNewsletterError.textContent = '';
+
+      try {
+        const resp = await fetch(API + '/api/template/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Falha ao criar newsletter');
+
+        await loadTemplates();
+
+        const card = document.querySelector(`.template-card[data-id="${data.template.id}"]`);
+        if (card) {
+          selectTemplate(card);
+          document.getElementById('subjectInput').value = data.template.subject;
+        }
+
+        closeCreateNewsletterModal();
+      } catch (e) {
+        createNewsletterError.textContent = 'Erro ao criar newsletter: ' + e.message;
+        confirmCreateNewsletterBtn.disabled = false;
+      }
+    }
+
+    document.getElementById('confirmCreateNewsletterBtn').addEventListener('click', submitCreateNewsletter);
+    newNewsletterName.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitCreateNewsletter();
+    });
+    newNewsletterSubject.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitCreateNewsletter();
     });
 
     // ────────────────────────────────

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { sendWelcomeEmail, sendTemplateEmail, getTemplatesList, readTemplateHtml, deleteTemplate } from './services/email/emailService.js';
+import { sendWelcomeEmail, sendTemplateEmail, getTemplatesList, readTemplateHtml, deleteTemplate, createNewsletterTemplate } from './services/email/emailService.js';
 import db from './config/database.js';
 
 const app = express();
@@ -60,6 +60,17 @@ app.post('/api/disparar-bemvindo', async (req, res) => {
 // Lista os templates disponíveis
 app.get('/api/templates', (req, res) => {
   res.json({ success: true, templates: getTemplatesList() });
+});
+
+// Cria um novo template de newsletter
+app.post('/api/template/newsletter', (req, res) => {
+  try {
+    const { title, subject, baseHtml } = req.body || {};
+    const created = createNewsletterTemplate({ title, subject, baseHtml });
+    res.status(201).json({ success: true, template: created });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
 });
 
 // Retorna o HTML bruto de um template (suporta IDs com subcategoria: csc/nomeTemplate)

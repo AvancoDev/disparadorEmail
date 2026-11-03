@@ -200,4 +200,98 @@ function deleteTemplate(templateId) {
     fs.unlinkSync(templatePath);
 }
 
-export { sendWelcomeEmail, sendTemplateEmail, getTemplatesList, readTemplateHtml, deleteTemplate };
+function slugifyNewsletterName(name) {
+    return (name || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-{2,}/g, '-');
+}
+
+function buildNewsletterStarterHtml(title) {
+    const safeTitle = (title || 'Nova Newsletter').replace(/[<>]/g, '').trim() || 'Nova Newsletter';
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${safeTitle}</title>
+    <style>
+        body { margin: 0; padding: 0; background: #f5f5f5; font-family: Arial, sans-serif; color: #1f2937; }
+        .container { max-width: 640px; margin: 20px auto; background: #ffffff; border-radius: 8px; overflow: hidden; }
+        .header { background: #003f8a; color: #ffffff; padding: 28px 24px; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .content { padding: 28px 24px; line-height: 1.6; font-size: 14px; }
+        .imagem-placeholder { margin: 18px 0; padding: 32px; border: 2px dashed #93c5fd; border-radius: 6px; text-align: center; color: #1d4ed8; background: #eff6ff; }
+        .footer { padding: 18px 24px; background: #f8fafc; color: #64748b; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${safeTitle}</h1>
+        </div>
+        <div class="content">
+            <p>Olá <strong>{{NOME}}</strong>,</p>
+            <p>Escreva aqui o conteúdo principal da newsletter.</p>
+            <div class="imagem-placeholder">Clique no preview para inserir imagem</div>
+            <p>Adicione aqui os destaques, links e chamadas para ação.</p>
+        </div>
+        <div class="footer">
+            Portal CSC - Avanço S/A
+        </div>
+    </div>
+</body>
+</html>`;
+}
+
+/**
+ * Cria um novo template de newsletter em templates/csc/newsletters/.
+ * @param {object} opts
+ * @param {string} opts.title - Título exibido da newsletter
+ * @param {string} [opts.subject] - Assunto padrão (opcional)
+ * @param {string} [opts.baseHtml] - HTML base (opcional)
+ * @returns {{ id: string, filename: string, subject: string, title: string }}
+ */
+function createNewsletterTemplate({ title, subject, baseHtml }) {
+    const cleanTitle = (title || '').trim();
+    if (!cleanTitle) {
+        throw new Error('Título da newsletter é obrigatório');
+    }
+
+    const slug = slugifyNewsletterName(cleanTitle);
+    if (!slug) {
+        throw new Error('Título inválido para criar o template');
+    }
+
+    const newslettersDir = path.resolve(__dirname, 'templates', 'csc', 'newsletters');
+    if (!fs.existsSync(newslettersDir)) {
+        fs.mkdirSync(newslettersDir, { recursive: true });
+    }
+
+    const filename = `${slug}.html`;
+    const filePath = path.resolve(newslettersDir, filename);
+    if (!filePath.startsWith(newslettersDir + path.sep)) {
+        throw new Error('Nome de arquivo inválido');
+    }
+    if (fs.existsSync(filePath)) {
+        throw new Error('Já existe uma newsletter com esse nome');
+    }
+
+    const html = (typeof baseHtml === 'string' && baseHtml.trim())
+        ? baseHtml
+        : buildNewsletterStarterHtml(cleanTitle);
+
+    fs.writeFileSync(filePath, html, 'utf8');
+
+    return {
+        id: `csc/newsletters/${slug}`,
+        filename,
+        title: cleanTitle,
+        subject: (subject || '').trim() || `Portal CSC - ${cleanTitle}`,
+    };
+}
+
+export { sendWelcomeEmail, sendTemplateEmail, getTemplatesList, readTemplateHtml, deleteTemplate, createNewsletterTemplate };
